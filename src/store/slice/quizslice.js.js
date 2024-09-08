@@ -1,11 +1,15 @@
 import { createSlice } from "@reduxjs/toolkit";
 
+const storedAdmininfo = localStorage.getItem("adminLoggedin");
+const parsedAdmininfo = storedAdmininfo ? JSON.parse(storedAdmininfo) : null;
+
 const initialState = {
     name: '',
     currentQuiz: [],
     result: null,
     oldResults: [],
-    timeTaken: 0
+    timeTaken: 0,
+    adminLoggedin: parsedAdmininfo ?? null,
 };
 
 const quizSlice = createSlice({
@@ -38,10 +42,18 @@ const quizSlice = createSlice({
         },
         setTimeTaken: (state, action) => { 
             state.timeTaken = action.payload;
-        }
+        },
+        adminLogin: (state, action) => {
+            state.adminLoggedin = action.payload;
+            localStorage.setItem("adminLoggedin", JSON.stringify(action.payload));
+        },
+        adminLogout: (state) => {
+            state.adminLoggedin = false;
+            localStorage.removeItem("adminLoggedin");
+        },
     }
 });
 
-export const { setAnswer, setName, setOldResults, resetData, storeResult, setTimeTaken } = quizSlice.actions;
+export const { setAnswer, setName, setOldResults, resetData, storeResult, setTimeTaken, adminLogin, adminLogout } = quizSlice.actions;
 
 export default quizSlice.reducer;

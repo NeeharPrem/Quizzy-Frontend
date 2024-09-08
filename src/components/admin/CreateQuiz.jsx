@@ -1,173 +1,178 @@
-import React, { useState } from "react";
-import { Formik, Form, Field, ErrorMessage, FieldArray } from 'formik';
-import * as Yup from 'yup';
-import { addquiz } from "../../api/admin";
-import { toast } from "react-toastify";
+import React, { useState } from 'react';
+import { useFormik } from 'formik';
+import { addquiz } from '../../api/user';
+import { toast } from 'react-toastify';
 
-const CreateQuiz = () => {
-    const [questions, setQuestions] = useState([]);
-
-    const initialValues = {
-        title: "",
-        description: "",
-        currentQuestion: {
-            question: "",
-            options: ["", "", "", ""],
-            correct: ""
-        }
-    };
-
-    const validationSchema = Yup.object({
-        title: Yup.string().required("Title is required"),
-        description: Yup.string().required("Description is required"),
-        currentQuestion: Yup.object({
-            question: Yup.string().required("Question is required"),
-            options: Yup.array().of(Yup.string().required("Option is required")).min(4),
-            correct: Yup.string().required("Correct answer is required")
-        })
+const QuizForm = () => {
+    const [currentQuestion, setCurrentQuestion] = useState({
+        question: "",
+        options: ["", "", "", ""],
+        correct: ""
     });
 
-    const addQuestion = (values, { setFieldValue }) => {
-        if (values.currentQuestion.question &&
-            values.currentQuestion.options.every(opt => opt) &&
-            values.currentQuestion.correct) {
-            setQuestions([...questions, values.currentQuestion]);
-            setFieldValue('currentQuestion', initialValues.currentQuestion);
+    const formik = useFormik({
+        initialValues: {
+            title: "",
+            creater: "",
+            description: "",
+            questions: []
+        },
+        onSubmit: (values) => {
+            if (values.questions.length < 5) {
+                toast.error('Need Minimum 5 questions');
+                return;
+            }
+            addquiz(values)
+                .then(() => {
+                    toast.success('Quiz created successfully');
+                    formik.resetForm();
+                    setCurrentQuestion({
+                        question: "",
+                        options: ["", "", "", ""],
+                        correct: ""
+                    });
+                })
+                .catch(error => {
+                    toast.error('Error creating quiz: ' + error.message);
+                });
+        }
+    });
+
+    const handleQuestionChange = (e) => {
+        const { name, value } = e.target;
+        setCurrentQuestion(prevQuestion => ({
+            ...prevQuestion,
+            [name]: value
+        }));
+    };
+
+    const handleOptionChange = (index, value) => {
+        setCurrentQuestion(prevQuestion => ({
+            ...prevQuestion,
+            options: prevQuestion.options.map((opt, i) => i === index ? value : opt)
+        }));
+    };
+
+    const addQuestion = () => {
+        if (currentQuestion.question && currentQuestion.options.every(opt => opt) && currentQuestion.correct) {
+            formik.setFieldValue("questions", [
+                ...formik.values.questions,
+                currentQuestion
+            ]);
+            setCurrentQuestion({
+                question: "",
+                options: ["", "", "", ""],
+                correct: ""
+            });
         } else {
-            toast.error('Please fill all fields for the question');
+            toast.error('Please fill all fields for the question correctly');
         }
     };
 
     const removeQuestion = (index) => {
-        const newQuestions = questions.filter((_, i) => i !== index);
-        setQuestions(newQuestions);
-    };
-
-    const handleSubmit = (values, { setSubmitting }) => {
-        if (questions.length < 5) {
-            toast.error('Need Minimum 5 questions');
-            setSubmitting(false);
-            return;
-        }
-        const data = {
-            title: values.title,
-            description: values.description,
-            questions
-        };
-        addquiz(data)
-            .then(() => {
-                toast.success('Quiz created successfully');
-            })
-            .catch(error => {
-                toast.error('Error creating quiz: ' + error.message);
-            })
-            .finally(() => {
-                setSubmitting(false);
-            });
+        const updatedQuestions = formik.values.questions.filter((_, i) => i !== index);
+        formik.setFieldValue("questions", updatedQuestions);
     };
 
     return (
-        <Formik
-            initialValues={initialValues}
-            validationSchema={validationSchema}
-            onSubmit={handleSubmit}
-        >
-            {({ values, isSubmitting, setFieldValue }) => (
-                <Form className="flex">
-                    <div className="w-1/2 p-4 bg-gray-100">
-                        <h2 className="text-xl font-bold mb-4">Add Question</h2>
-                        <Field
-                            name="currentQuestion.question"
-                            type="text"
-                            placeholder="Enter the question"
-                            className="w-full p-2 mb-2 border rounded-md"
-                        />
-                        <ErrorMessage name="currentQuestion.question" component="div" className="text-red-500" />
-
-                        <FieldArray name="currentQuestion.options">
-                            {() => (
-                                values.currentQuestion.options.map((_, index) => (
-                                    <div key={index}>
-                                        <Field
-                                            name={`currentQuestion.options.${index}`}
-                                            type="text"
-                                            placeholder={`Option ${index + 1}`}
-                                            className="w-full p-2 mb-2 border rounded-md"
-                                        />
-                                        <ErrorMessage name={`currentQuestion.options.${index}`} component="div" className="text-red-500" />
-                                    </div>
-                                ))
-                            )}
-                        </FieldArray>
-
-                        <div className="mb-2">
-                            <label className="block font-semibold mb-1">Correct Answer:</label>
-                            <Field
-                                as="select"
-                                name="currentQuestion.correct"
-                                className="w-full p-2 border rounded-md"
-                            >
-                                <option value="">Select correct answer</option>
-                                {values.currentQuestion.options.map((option, index) => (
-                                    <option key={index} value={option}>{option || `Option ${index + 1}`}</option>
-                                ))}
-                            </Field>
-                            <ErrorMessage name="currentQuestion.correct" component="div" className="text-red-500" />
-                        </div>
-                        <button
-                            type="button"
-                            onClick={() => addQuestion(values, { setFieldValue })}
-                            className="bg-blue-500 text-white py-2 px-4 rounded-lg"
-                        >
-                            Add Question
-                        </button>
-                    </div>
-
-                    <div className="max-w-10 border-2 ml-2"></div>
-
-                    <div className="w-1/2 p-4 overflow-auto">
-                        <h2 className="text-xl font-bold mb-4">Quiz Details</h2>
-                        <Field
-                            name="title"
-                            type="text"
-                            placeholder="Quiz Title"
-                            className="w-full p-2 mb-2 border rounded-md"
-                        />
-                        <ErrorMessage name="title" component="div" className="text-red-500" />
-
-                        <Field
-                            as="textarea"
-                            name="description"
-                            placeholder="Quiz Description"
-                            className="w-full p-2 mb-2 border rounded-md"
-                        />
-                        <ErrorMessage name="description" component="div" className="text-red-500" />
-
-                        <h3 className="text-lg font-semibold mb-2">Added Questions:</h3>
-                        {questions.map((q, index) => (
-                            <div key={index} className="mb-2 p-2 bg-gray-200 rounded">
-                                <p><strong>Q{index + 1}:</strong> {q.question}</p>
-                                <button
-                                    type="button"
-                                    onClick={() => removeQuestion(index)}
-                                    className="text-red-500 text-sm"
+        <div className="flex justify-center items-center min-h-screen bg-gradient-to-br from-blue-100 to-purple-100">
+            <div className="bg-white p-8 rounded-xl shadow-2xl w-full max-w-4xl">
+                <h2 className="text-3xl font-bold text-gray-800 mb-6 text-center">Create Quiz</h2>
+                <form onSubmit={formik.handleSubmit}>
+                    <div className="flex space-x-4">
+                        <div className="w-1/2 p-4 bg-gray-100 rounded-lg">
+                            <h3 className="text-xl font-bold mb-4">Add Question</h3>
+                            <input
+                                name="question"
+                                type="text"
+                                value={currentQuestion.question}
+                                onChange={handleQuestionChange}
+                                placeholder="Enter the question"
+                                className="w-full p-2 mb-2 border rounded-md"
+                            />
+                            {currentQuestion.options.map((option, index) => (
+                                <input
+                                    key={index}
+                                    type="text"
+                                    value={option}
+                                    onChange={(e) => handleOptionChange(index, e.target.value)}
+                                    placeholder={`Option ${index + 1}`}
+                                    className="w-full p-2 mb-2 border rounded-md"
+                                />
+                            ))}
+                            <div className="mb-2">
+                                <label className="block font-semibold mb-1">Correct Answer:</label>
+                                <select
+                                    name="correct"
+                                    value={currentQuestion.correct}
+                                    onChange={handleQuestionChange}
+                                    className="w-full p-2 border rounded-md"
                                 >
-                                    Remove
-                                </button>
+                                    <option value="">Select correct answer</option>
+                                    {currentQuestion.options.map((option, index) => (
+                                        <option key={index} value={option}>{option || `Option ${index + 1}`}</option>
+                                    ))}
+                                </select>
                             </div>
-                        ))}
-                        <button
-                            type="submit"
-                            disabled={isSubmitting}
-                            className="bg-green-500 text-white py-2 px-4 rounded-lg mt-4"
-                        >
-                            {isSubmitting ? 'Creating Quiz...' : 'Create Quiz'}
-                        </button>
+                            <button
+                                type="button"
+                                onClick={addQuestion}
+                                className="bg-blue-500 text-white py-2 px-4 rounded-lg w-full mt-4"
+                            >
+                                Add Question
+                            </button>
+                        </div>
+
+                        <div className="w-1/2 p-4 bg-gray-100 rounded-lg">
+                            <h3 className="text-xl font-bold mb-4">Quiz Details</h3>
+                            <input
+                                name="title"
+                                type="text"
+                                value={formik.values.title}
+                                onChange={formik.handleChange}
+                                placeholder="Quiz Title"
+                                className="w-full p-2 mb-2 border rounded-md"
+                            />
+                            <input
+                                name="creater"
+                                type="text"
+                                value={formik.values.creater}
+                                onChange={formik.handleChange}
+                                placeholder="Creator Name"
+                                className="w-full p-2 mb-2 border rounded-md"
+                            />
+                            <textarea
+                                name="description"
+                                value={formik.values.description}
+                                onChange={formik.handleChange}
+                                placeholder="Quiz Description"
+                                className="w-full p-2 mb-2 border rounded-md"
+                            />
+                            <h4 className="text-lg font-semibold mb-2">Added Questions:</h4>
+                            {formik.values.questions.map((q, index) => (
+                                <div key={index} className="mb-2 p-2 bg-gray-200 rounded">
+                                    <p><strong>Q{index + 1}:</strong> {q.question}</p>
+                                    <button
+                                        type="button"
+                                        onClick={() => removeQuestion(index)}
+                                        className="text-red-500 text-sm"
+                                    >
+                                        Remove
+                                    </button>
+                                </div>
+                            ))}
+                            <button
+                                type="submit"
+                                className="bg-green-500 text-white py-2 px-4 rounded-lg w-full mt-4"
+                            >
+                                Create Quiz
+                            </button>
+                        </div>
                     </div>
-                </Form>
-            )}
-        </Formik>
+                </form>
+            </div>
+        </div>
     );
 };
 
-export default CreateQuiz;
+export default QuizForm;

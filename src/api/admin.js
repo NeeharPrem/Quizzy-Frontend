@@ -22,7 +22,35 @@ export const deleteQuiz = async (id)=>{
 
 export const addquiz = async (data) => {
     try {
-        const response = await Api.post(userEndpoints.addquiz, data)
+        console.log(data,'gjg')
+        const response = await Api.post(adminEndpoints.addquiz, data)
+        return response
+    } catch (error) {
+        console.log(error)
+    }
+}
+
+export const signup =async(data)=>{
+    try {
+        const response = await Api.post(adminEndpoints.signup,data)
+        return response
+    } catch (error) {
+        console.log(error)
+    }
+}
+
+export const login = async (data)=>{
+    try{
+        const response= await Api.post(adminEndpoints.login,data)
+        return response
+    }catch(error){
+        console.log(error)
+    }
+}
+
+export const logout = async()=>{
+    try {
+        const response= await Api.post(adminEndpoints.logout)
         return response
     } catch (error) {
         console.log(error)

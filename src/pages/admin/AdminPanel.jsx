@@ -15,8 +15,8 @@ function AdminPanel() {
     return (
         <div className='flex flex-col h-screen'>
             <Navbar />
-            <div className='p-5'>
-                <div className='border-2 '>
+            <div>
+                <div className='border-2'>
                     {addQuiz ? <CreateQuiz /> : <MainComp handleaddQuiz={handleaddQuiz} />}
                 </div>
             </div>
