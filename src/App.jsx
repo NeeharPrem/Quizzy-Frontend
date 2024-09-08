@@ -18,7 +18,7 @@ const ProtectedRoute = ({ element, admin }) => {
 
 function App() {
   const admin = useSelector(state => state.quiz.adminLoggedin);
-
+  const userName = useSelector(state => state.quiz.name);
   return (
     <Router>
       <Routes>
