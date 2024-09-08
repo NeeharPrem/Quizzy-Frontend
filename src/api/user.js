@@ -27,3 +27,12 @@ export const getQuiz = async (quizId) => {
         console.log(error);
     }
 }
+
+export const report = async (data)=>{
+    try{
+        const response= await Api.post(userEndpoints.report,data)
+        return response
+    }catch(error){
+        console.log(error)
+    }
+}

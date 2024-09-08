@@ -1,35 +1,47 @@
 import { createSlice } from "@reduxjs/toolkit";
-import store from "../store";
 
-const initialState= {
-    name:'',
-    currentQuiz:[],
-    result:null,
-    oldResults:[]
+const initialState = {
+    name: '',
+    currentQuiz: [],
+    result: null,
+    oldResults: [],
+    timeTaken: 0
 };
 
-const quizSlice= createSlice({
-    name:'quiz',
+const quizSlice = createSlice({
+    name: 'quiz',
     initialState,
-    reducers:{
-        setName: (state,action)=>{
-            state.name= action.payload
+    reducers: {
+        setName: (state, action) => {
+            state.name = action.payload;
         },
-        setAnswers: (state, action) => {
-            state.currentQuiz.push(action.payload);
+        setAnswer: (state, action) => {
+            const { questionId, answer } = action.payload;
+            const existingIndex = state.currentQuiz.findIndex(item => item.questionId === questionId);
+
+            if (existingIndex !== -1) {
+                state.currentQuiz[existingIndex] = { questionId, answer };
+            } else {
+                state.currentQuiz.push({ questionId, answer });
+            }
         },
-        storeResult:(state,action)=>{
-            state.result= action.payload
+        storeResult: (state, action) => {
+            state.result = action.payload;
         },
-        setoldResults:(state,action)=>{
-            state.oldResults= action.payload
+        setOldResults: (state, action) => {
+            state.oldResults = action.payload;
         },
-        resetData:(state)=>{
-            state.currentQuiz=[],
-            state.result= null
+        resetData: (state) => {
+            state.currentQuiz = [];
+            state.result = null;
+            state.timeTaken = 0;
+        },
+        setTimeTaken: (state, action) => { 
+            state.timeTaken = action.payload;
         }
     }
-})
-export const {setAnswers,setName,setoldResults,resetData,storeResult}=quizSlice.actions;
+});
+
+export const { setAnswer, setName, setOldResults, resetData, storeResult, setTimeTaken } = quizSlice.actions;
 
 export default quizSlice.reducer;

@@ -5,19 +5,6 @@ const QuizTaker = () => {
     const [currentQuestion, setCurrentQuestion] = useState(0);
     const [answers, setAnswers] = useState([]);
 
-    const questions = [
-        {
-            question: "Question 1?",
-            options: ["Option A", "Option B", "Option C", "Option D"],
-            correctAnswer: 0
-        },
-        {
-            question: "Question 2?",
-            options: ["Option A", "Option B", "Option C", "Option D"],
-            correctAnswer: 1
-        },
-    ];
-
     const handleNameChange = (e) => {
         setName(e.target.value);
     };
@@ -37,7 +24,7 @@ const QuizTaker = () => {
     };
 
     const handleSubmitQuiz = () => {
-        // Handle quiz submission (e.g., calculate score)
+       
     };
 
     return (
