@@ -6,6 +6,7 @@ import { toast } from 'react-toastify';
 const EditQuiz = ({ quizId }) => {
     const [selectedQuestion, setSelectedQuestion] = useState(null);
     const [editedQuestions, setEditedQuestions] = useState({});
+    const [correctAnswerId, setCorrectAnswerId] = useState(null);
 
     const formik = useFormik({
         initialValues: {
@@ -18,12 +19,18 @@ const EditQuiz = ({ quizId }) => {
             const updatedQuestions = values.questions.map(q =>
                 editedQuestions[q._id] ? { ...q, ...editedQuestions[q._id] } : q
             );
-            const updatedValues = { ...values, questions: updatedQuestions };
+            const updatedQuestionsWithCorrectAnswer = updatedQuestions.map(q => ({
+                ...q,
+                isCorrect: q.options.filter(o => o._id === correctAnswerId)
+            }));
+
+            const updatedValues = { ...values, questions: updatedQuestionsWithCorrectAnswer };
 
             editQuiz(quizId, updatedValues)
                 .then(() => {
                     toast.success('Quiz updated successfully');
                     setEditedQuestions({});
+                    setCorrectAnswerId(null);
                 })
                 .catch(error => {
                     toast.error('Error updating quiz: ' + error.message);
@@ -43,6 +50,8 @@ const EditQuiz = ({ quizId }) => {
 
     const handleQuestionSelect = (question) => {
         setSelectedQuestion(question);
+        const correctOption = question.options.find(option => option.isCorrect);
+        setCorrectAnswerId(correctOption ? correctOption._id : null);
     };
 
     const handleQuestionChange = (e) => {
@@ -57,8 +66,8 @@ const EditQuiz = ({ quizId }) => {
     };
 
     const handleCorrectAnswerChange = (index) => {
-        const updatedIsCorrect = selectedQuestion.options.map((_, i) => i === index);
-        setSelectedQuestion(prev => ({ ...prev, isCorrect: updatedIsCorrect }));
+        const selectedOption = selectedQuestion.options[index];
+        setCorrectAnswerId(selectedOption._id);
     };
 
     const saveQuestionChanges = () => {
@@ -103,7 +112,7 @@ const EditQuiz = ({ quizId }) => {
                                                     type="radio"
                                                     id={`correct-${index}`}
                                                     name="correctAnswer"
-                                                    checked={selectedQuestion.isCorrect[index]}
+                                                    checked={option._id === correctAnswerId}
                                                     onChange={() => handleCorrectAnswerChange(index)}
                                                     className="mr-2"
                                                 />

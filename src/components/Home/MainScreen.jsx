@@ -34,17 +34,17 @@ const QuizDashboard = () => {
 
     return (
         <div className="w-full h-full px-4 font-sans">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-4  gap-4">
                 {quizzes.length > 0 ? (
                     quizzes.map((quiz, index) => (
                         <Link key={index} to={`/quiz/${quiz._id}`}>
-                            <Card className="bg-gradient-to-r from-purple-700 via-blue-700 to-indigo-700 text-white hover:bg-gradient-to-r hover:from-purple-800 hover:via-blue-800 hover:to-indigo-800">
-                                <div className="flex flex-col h-full">
-                                    <div className="flex-grow">
-                                        <h2 className="text-2xl font-bold mb-2">{quiz.title}</h2>
-                                        <p className="text-gray-200">{quiz.description}</p>
+                            <Card className="bg-lime-800 rounded-sm h-full text-white hover:bg-lime-900">
+                                <div className="flex flex-col h-full items-end">
+                                    <div className="flex-grow w-full">
+                                        <h2 className="text-1xl font-bold mb-2">{quiz.title}</h2>
+                                        <p className="text-gray-200 text-sm">{quiz.description}</p>
                                     </div>
-                                    <Button className="bg-yellow-400 text-black mt-4">Take Quiz</Button>
+                                    <button className="bg-lime-600 rounded-sm h-10 w-2/6  mt-4">Take Quiz</button>
                                 </div>
                             </Card>
                         </Link>
