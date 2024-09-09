@@ -4,6 +4,8 @@ const adminEndpoints = {
     deleteQuiz:'/admin/deletequiz',
     signup:'/admin/signup',
     login:'/admin/login',
-    logout:'/admin/logout'
+    logout:'/admin/logout',
+    editquiz:'/admin/editquiz',
+    getQuiz:'/admin/getquiz'
 }
 export default adminEndpoints

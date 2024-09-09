@@ -56,3 +56,23 @@ export const logout = async()=>{
         console.log(error)
     }
 }
+
+export const getQuiz = async (quizId) => {
+    try {
+        const response = await Api.get(`${adminEndpoints.getQuiz}/${quizId}`)
+        return response;
+    } catch (error) {
+        console.log(error);
+    }
+}
+
+export const editQuiz = async (quizId, data) => {
+    try {
+        console.log(data,'dd')
+        const response = await Api.patch(`${adminEndpoints.editquiz}/${quizId}`, data);
+        return response;
+    } catch (error) {
+        console.log(error);
+        throw new Error('Error updating quiz: ' + error.message);
+    }
+};

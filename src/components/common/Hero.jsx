@@ -1,10 +1,13 @@
-import React from 'react'
+import React from 'react';
 
 function Hero() {
   return (
-      <div className="bg-cover bg-center h-96" style={{ backgroundImage: "url('https://www.riddle.com/imageservice/q_80,f_auto,c_fill,w_960,h_540/ed6cozjawexldjs7yedn')"}}>
-      </div>
-  )
+    <div
+      className="bg-cover bg-center h-80"
+      style={{ backgroundImage: "url('https://images.unsplash.com/photo-1556812411-3b4568b4f1e4?fit=crop&w=960&h=540')" }}
+    >
+    </div>
+  );
 }
 
-export default Hero
+export default Hero;

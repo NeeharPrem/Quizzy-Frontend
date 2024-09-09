@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { allQuizzes, deleteQuiz } from '../../api/admin';
 import { PlusCircle, Edit2, Trash2 } from 'lucide-react';
 
-function MainComp({ handleaddQuiz }) {
+function MainComp({ handleaddQuiz, handleedit }) {
     const [quizzes, setQuizzes] = useState([]);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [quizToDelete, setQuizToDelete] = useState(null);
@@ -41,6 +41,11 @@ function MainComp({ handleaddQuiz }) {
         fetchQuizzes();
     }, []);
 
+    const handleEditQuiz = (id) => {
+        handleedit(id);
+    };
+
+
     return (
         <div className="flex justify-center items-center min-h-screen bg-gradient-to-br from-blue-100 to-purple-100">
             <div className="bg-white p-8 rounded-xl shadow-2xl w-full max-w-4xl transform transition-all duration-300 hover:scale-105">
@@ -70,7 +75,7 @@ function MainComp({ handleaddQuiz }) {
                                         <td className="px-4 py-2">{quiz.title}</td>
                                         <td className="px-4 py-2">{quiz.description}</td>
                                         <td className="px-4 py-2">
-                                            <button className="bg-yellow-500 text-white py-1 px-2 rounded-lg mr-2 hover:bg-yellow-600 transition-colors duration-300 flex items-center">
+                                            <button onClick={() => handleEditQuiz(quiz._id)} className="bg-yellow-500 text-white py-1 px-2 rounded-lg mr-2 hover:bg-yellow-600 transition-colors duration-300 flex items-center">
                                                 <Edit2 size={16} className="mr-1" /> Edit
                                             </button>
                                             <button
